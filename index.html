@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sixties – Disponibilità Weekend 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --cream: #f5f0e8;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --rust: #c0533a;
+    --sage: #3d7a4a;
+    --sage-light: #d4ead9;
+    --teal: #2a6b8a;
+    --teal-light: #cce4f0;
+    --paper: #faf7f2;
+    --border: #d4c9b0;
+    --shadow: rgba(26,26,46,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: var(--ink); color: var(--cream);
+    padding: 2.5rem 2rem 2rem; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(201,168,76,0.05) 20px,rgba(201,168,76,0.05) 21px);
+  }
+  header h1 { font-family:'Playfair Display',serif; font-size:clamp(2rem,5vw,3.5rem); font-weight:900; letter-spacing:-0.02em; position:relative; }
+  header h1 span { color: var(--gold); }
+  header p { margin-top:0.5rem; font-size:1rem; font-weight:300; opacity:0.7; position:relative; }
+
+  /* STEPS */
+  .steps { display:flex; justify-content:center; padding:1.5rem 2rem; background:var(--paper); border-bottom:1px solid var(--border); flex-wrap:wrap; gap:0.25rem; }
+  .step { display:flex; align-items:center; gap:0.5rem; font-size:0.82rem; font-weight:500; color:#999; transition:color 0.3s; }
+  .step.active { color:var(--ink); }
+  .step.done { color:var(--sage); }
+  .step-num { width:26px;height:26px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;transition:background 0.3s,color 0.3s; }
+  .step.active .step-num { background:var(--ink);color:white; }
+  .step.done .step-num { background:var(--sage);color:white; }
+  .step-sep { width:30px;height:1px;background:var(--border);margin:0 0.25rem;align-self:center; }
+
+  /* MAIN */
+  main { max-width:900px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+
+  /* CARDS */
+  .card { background:white; border:1px solid var(--border); border-radius:12px; padding:2rem; box-shadow:0 2px 16px var(--shadow); animation:fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .card h2 { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:0.4rem; }
+  .card .subtitle { font-size:0.9rem; color:#777; margin-bottom:1.5rem; }
+
+  /* NAME GRID */
+  .name-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:0.75rem; margin-top:1rem; }
+  .name-btn { padding:0.9rem 1rem; border:2px solid var(--border); border-radius:8px; background:var(--paper); cursor:pointer; font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--ink); transition:all 0.2s; text-align:center; }
+  .name-btn:hover { border-color:var(--gold); background:#fffdf5; transform:translateY(-2px); box-shadow:0 4px 12px rgba(201,168,76,0.2); }
+  .name-btn.selected { border-color:var(--gold); background:var(--ink); color:var(--gold); }
+
+  /* WEEKEND PICKER */
+  #step2 { display:none; }
+  .month-group { margin-bottom:2rem; }
+  .month-label { font-family:'Playfair Display',serif; font-weight:700; color:var(--gold); border-bottom:2px solid var(--gold-light); padding-bottom:0.4rem; margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.08em; font-size:0.85rem; }
+
+  /* Weekend card: date in cima, poi i due pulsanti dest */
+  .weekends-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:0.75rem; }
+
+  .we-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--paper);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .we-card.has-selection { border-color: var(--gold); box-shadow: 0 2px 10px rgba(201,168,76,0.2); }
+
+  .we-header {
+    padding: 0.6rem 0.7rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .we-header:hover { background: #f0ede6; }
+  .we-dates { font-size: 0.85rem; font-weight: 600; }
+  .we-toggle-hint { font-size: 0.68rem; color: #aaa; margin-top: 2px; }
+
+  .we-dests {
+    display: none;
+    flex-direction: column;
+  }
+  .we-card.expanded .we-dests { display: flex; }
+
+  .dest-btn {
+    padding: 0.5rem 0.6rem;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+    border-top: 1px solid var(--border);
+    letter-spacing: 0.02em;
+  }
+  .dest-btn:first-child { border-top: none; }
+  .dest-btn:hover { background: #eee; }
+  .dest-btn.selected-piemonte { background: var(--sage); color: white; }
+  .dest-btn.selected-toscana  { background: var(--teal); color: white; }
+
+  /* Summary */
+  .selection-summary { margin:1.5rem 0; padding:0.9rem 1.2rem; background:var(--sage-light); border-radius:8px; border-left:4px solid var(--sage); font-size:0.9rem; font-weight:500; color:var(--ink); display:none; }
+  .selection-summary.show { display:block; }
+
+  /* BUTTONS */
+  .btn-row { display:flex; gap:0.75rem; margin-top:1.5rem; flex-wrap:wrap; }
+  .btn { padding:0.75rem 1.75rem; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:500; transition:all 0.2s; }
+  .btn-primary { background:var(--ink); color:var(--cream); }
+  .btn-primary:hover { background:#2d2d4e; transform:translateY(-1px); box-shadow:0 4px 12px var(--shadow); }
+  .btn-primary:disabled { background:#bbb; cursor:not-allowed; transform:none; box-shadow:none; }
+  .btn-secondary { background:transparent; color:var(--ink); border:1.5px solid var(--border); }
+  .btn-secondary:hover { border-color:var(--ink); background:var(--paper); }
+  .btn-gold { background:var(--gold); color:var(--ink); font-weight:700; }
+  .btn-gold:hover { background:#b8973e; transform:translateY(-1px); box-shadow:0 4px 12px rgba(201,168,76,0.35); }
+  .btn-gold:disabled { background:#ddd; color:#888; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  /* CONFIRM */
+  #step3 { display:none; }
+  .confirm-name { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--gold); margin-bottom:0.3rem; }
+  .confirm-list { display:flex; flex-wrap:wrap; gap:0.5rem; margin:1.2rem 0; }
+  .confirm-tag { padding:0.3rem 0.75rem; border-radius:20px; font-size:0.85rem; font-weight:600; color:white; }
+  .confirm-tag.piemonte { background: var(--sage); }
+  .confirm-tag.toscana  { background: var(--teal); }
+  .confirm-tag.nessuna  { background: #aaa; }
+  .confirm-empty { color:var(--rust); font-style:italic; font-size:0.9rem; margin:0.5rem 0; }
+
+  /* LEGEND */
+  .legend { display:flex; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; font-size:0.82rem; }
+  .legend-item { display:flex; align-items:center; gap:0.4rem; }
+  .legend-dot { width:14px;height:14px;border-radius:3px; }
+  .dot-piemonte { background: var(--sage); }
+  .dot-toscana  { background: var(--teal); }
+  .dot-empty    { background: white; border:1px solid var(--border); }
+
+  /* SUMMARY TABLE */
+  #step4 { display:none; }
+  .summary-grid { overflow-x:auto; margin-top:1rem; }
+  table { border-collapse:collapse; font-size:0.78rem; }
+  th { background:var(--ink); color:var(--cream); padding:0.45rem 0.35rem; text-align:center; font-weight:500; white-space:nowrap; }
+  th.name-col { text-align:left; padding-left:0.8rem; min-width:100px; }
+  td { border:1px solid var(--border); padding:0.35rem 0.3rem; text-align:center; vertical-align:middle; min-width:38px; height:28px; }
+  td.name-cell { font-family:'Playfair Display',serif; font-weight:700; font-size:0.88rem; text-align:left; padding-left:0.8rem; background:var(--paper); position:sticky; left:0; z-index:1; border-right:2px solid var(--border); white-space:nowrap; }
+  td.cell-piemonte { background:var(--sage); color:white; font-weight:700; font-size:0.72rem; }
+  td.cell-toscana  { background:var(--teal); color:white; font-weight:700; font-size:0.72rem; }
+  td.cell-empty    { background:white; }
+  tr:hover td { filter:brightness(0.95); }
+
+  /* STATUS */
+  .status-box { padding:1rem 1.2rem; border-radius:8px; margin-top:1rem; font-size:0.9rem; display:none; }
+  .status-box.show { display:block; }
+  .status-success { background:var(--sage-light); border-left:4px solid var(--sage); color:#1a4a22; }
+  .status-error   { background:#fde8e8; border-left:4px solid var(--rust); color:#7a2020; }
+  .status-loading { background:var(--gold-light); border-left:4px solid var(--gold); color:#5a4010; }
+
+  /* SETUP BANNER */
+  #setup-banner { background:var(--rust); color:white; padding:0.9rem 1.5rem; text-align:center; font-size:0.85rem; display:none; }
+  #setup-banner a { color:var(--gold-light); text-decoration:underline; }
+  #setup-banner.show { display:block; }
+
+  footer { text-align:center; padding:1.5rem; font-size:0.78rem; color:#aaa; border-top:1px solid var(--border); margin-top:2rem; }
+
+  @media (max-width:500px) {
+    .card { padding:1.25rem; }
+    .weekends-grid { grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); }
+    .name-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div id="setup-banner">
+  ⚙️ <strong>Configurazione necessaria:</strong> inserisci l'URL del tuo Google Apps Script (variabile <code>SCRIPT_URL</code>).
+  <a href="#" onclick="document.getElementById('setup-banner').style.display='none'">Chiudi</a>
+</div>
+
+<header>
+  <h1>Sixties <span>&</span> Weekend</h1>
+  <p>Indica i weekend e la destinazione preferita — 2026</p>
+</header>
+
+<div class="steps">
+  <div class="step active" id="s1"><div class="step-num">1</div> Chi sei</div>
+  <div class="step-sep"></div>
+  <div class="step" id="s2"><div class="step-num">2</div> Weekend</div>
+  <div class="step-sep"></div>
+  <div class="step" id="s3"><div class="step-num">3</div> Conferma</div>
+  <div class="step-sep"></div>
+  <div class="step" id="s4"><div class="step-num">4</div> Riepilogo</div>
+</div>
+
+<main>
+
+  <!-- STEP 1 -->
+  <div class="card" id="step1">
+    <h2>Chi sei?</h2>
+    <p class="subtitle">Seleziona il tuo nome per iniziare</p>
+    <div class="name-grid" id="nameGrid"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnToStep2" disabled onclick="goToStep2()">Continua →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card" id="step2">
+    <h2>Weekend e destinazione</h2>
+    <p class="subtitle">Clicca su un weekend per espanderlo e scegliere la destinazione: <strong style="color:var(--sage)">Piemonte</strong> o <strong style="color:var(--teal)">Toscana</strong>.</p>
+    <div id="weekendPicker"></div>
+    <div class="selection-summary" id="selSummary"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goToStep1()">← Indietro</button>
+      <button class="btn btn-primary" onclick="goToStep3()">Conferma scelte →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card" id="step3">
+    <h2>Riepilogo</h2>
+    <p class="subtitle">Controlla le tue scelte prima di inviare</p>
+    <div class="confirm-name" id="confirmName"></div>
+    <p style="font-size:0.9rem;color:#666;margin-bottom:0.5rem;">Weekend selezionati:</p>
+    <div class="confirm-list" id="confirmList"></div>
+    <div class="status-box" id="statusBox"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goToStep2()">← Modifica</button>
+      <button class="btn btn-gold" id="btnSend" onclick="sendData()">✉ Invia disponibilità</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="card" id="step4">
+    <h2>Disponibilità del gruppo</h2>
+    <p class="subtitle">Panoramica di tutti i weekend — aggiornata in tempo reale</p>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot dot-piemonte"></div> Piemonte</div>
+      <div class="legend-item"><div class="legend-dot dot-toscana"></div> Toscana</div>
+      <div class="legend-item"><div class="legend-dot dot-empty"></div> Non disponibile</div>
+    </div>
+    <div id="loadingMsg" style="padding:1rem;color:#888;font-style:italic;">Caricamento dati…</div>
+    <div class="summary-grid" id="summaryGrid"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goToStep1()">← Nuova risposta</button>
+      <button class="btn btn-primary" onclick="loadSummary()">↻ Aggiorna</button>
+    </div>
+  </div>
+
+</main>
+
+<footer>Sixties Weekend Planner 2026 · Powered with ❤️</footer>
+
+<script>
+// ═══════════════════════════════════════════════
+// ⚙️ CONFIGURAZIONE
+// ═══════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDnkTAGkBJlrBJe3ZowU_-NpE18XY1Cr9bbUNYIAsMOzmrtbag9rdM66Wb63d1oYCl1A/exec";
+
+// ═══════════════════════════════════════════════
+// DATI
+// ═══════════════════════════════════════════════
+const PEOPLE = ["Alberto","Alessandro","Andrea P.","Andrea S.","Attilio","Diego","Marco"];
+
+const WEEKENDS = [{"id":"20260319_20260322","startFmt":"19/03","endFmt":"22/03","month":"Marzo 2026"},{"id":"20260326_20260329","startFmt":"26/03","endFmt":"29/03","month":"Marzo 2026"},{"id":"20260402_20260405","startFmt":"02/04","endFmt":"05/04","month":"Aprile 2026"},{"id":"20260409_20260412","startFmt":"09/04","endFmt":"12/04","month":"Aprile 2026"},{"id":"20260416_20260419","startFmt":"16/04","endFmt":"19/04","month":"Aprile 2026"},{"id":"20260423_20260426","startFmt":"23/04","endFmt":"26/04","month":"Aprile 2026"},{"id":"20260430_20260503","startFmt":"30/04","endFmt":"03/05","month":"Aprile 2026"},{"id":"20260507_20260510","startFmt":"07/05","endFmt":"10/05","month":"Maggio 2026"},{"id":"20260514_20260517","startFmt":"14/05","endFmt":"17/05","month":"Maggio 2026"},{"id":"20260521_20260524","startFmt":"21/05","endFmt":"24/05","month":"Maggio 2026"},{"id":"20260528_20260531","startFmt":"28/05","endFmt":"31/05","month":"Maggio 2026"},{"id":"20260604_20260607","startFmt":"04/06","endFmt":"07/06","month":"Giugno 2026"},{"id":"20260611_20260614","startFmt":"11/06","endFmt":"14/06","month":"Giugno 2026"},{"id":"20260618_20260621","startFmt":"18/06","endFmt":"21/06","month":"Giugno 2026"},{"id":"20260625_20260628","startFmt":"25/06","endFmt":"28/06","month":"Giugno 2026"},{"id":"20260702_20260705","startFmt":"02/07","endFmt":"05/07","month":"Luglio 2026"},{"id":"20260709_20260712","startFmt":"09/07","endFmt":"12/07","month":"Luglio 2026"},{"id":"20260716_20260719","startFmt":"16/07","endFmt":"19/07","month":"Luglio 2026"},{"id":"20260723_20260726","startFmt":"23/07","endFmt":"26/07","month":"Luglio 2026"},{"id":"20260730_20260802","startFmt":"30/07","endFmt":"02/08","month":"Luglio 2026"},{"id":"20260806_20260809","startFmt":"06/08","endFmt":"09/08","month":"Agosto 2026"},{"id":"20260813_20260816","startFmt":"13/08","endFmt":"16/08","month":"Agosto 2026"},{"id":"20260820_20260823","startFmt":"20/08","endFmt":"23/08","month":"Agosto 2026"},{"id":"20260827_20260830","startFmt":"27/08","endFmt":"30/08","month":"Agosto 2026"},{"id":"20260903_20260906","startFmt":"03/09","endFmt":"06/09","month":"Settembre 2026"},{"id":"20260910_20260913","startFmt":"10/09","endFmt":"13/09","month":"Settembre 2026"},{"id":"20260917_20260920","startFmt":"17/09","endFmt":"20/09","month":"Settembre 2026"},{"id":"20260924_20260927","startFmt":"24/09","endFmt":"27/09","month":"Settembre 2026"},{"id":"20261001_20261004","startFmt":"01/10","endFmt":"04/10","month":"Ottobre 2026"},{"id":"20261008_20261011","startFmt":"08/10","endFmt":"11/10","month":"Ottobre 2026"},{"id":"20261015_20261018","startFmt":"15/10","endFmt":"18/10","month":"Ottobre 2026"},{"id":"20261022_20261025","startFmt":"22/10","endFmt":"25/10","month":"Ottobre 2026"},{"id":"20261029_20261101","startFmt":"29/10","endFmt":"01/11","month":"Ottobre 2026"},{"id":"20261105_20261108","startFmt":"05/11","endFmt":"08/11","month":"Novembre 2026"},{"id":"20261112_20261115","startFmt":"12/11","endFmt":"15/11","month":"Novembre 2026"},{"id":"20261119_20261122","startFmt":"19/11","endFmt":"22/11","month":"Novembre 2026"},{"id":"20261126_20261129","startFmt":"26/11","endFmt":"29/11","month":"Novembre 2026"},{"id":"20261203_20261206","startFmt":"03/12","endFmt":"06/12","month":"Dicembre 2026"},{"id":"20261210_20261213","startFmt":"10/12","endFmt":"13/12","month":"Dicembre 2026"},{"id":"20261217_20261220","startFmt":"17/12","endFmt":"20/12","month":"Dicembre 2026"},{"id":"20261224_20261227","startFmt":"24/12","endFmt":"27/12","month":"Dicembre 2026"}];
+
+// ═══════════════════════════════════════════════
+// STATE
+// selectedChoices: Map<weekendId, 'piemonte'|'toscana'>
+// ═══════════════════════════════════════════════
+let selectedName = null;
+let selectedChoices = new Map(); // id -> 'piemonte' | 'toscana'
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  if (SCRIPT_URL === "YOUR_GOOGLE_SCRIPT_URL_HERE") {
+    document.getElementById('setup-banner').classList.add('show');
+  }
+  buildNameGrid();
+  buildWeekendPicker();
+  setStep(1);
+});
+
+// ═══════════════════════════════════════════════
+// STEP 1 — NOME
+// ═══════════════════════════════════════════════
+function buildNameGrid() {
+  const grid = document.getElementById('nameGrid');
+  PEOPLE.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'name-btn';
+    btn.textContent = name;
+    btn.onclick = () => selectName(name, btn);
+    grid.appendChild(btn);
+  });
+}
+
+async function selectName(name, btn) {
+  document.querySelectorAll('.name-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedName = name;
+
+  const prevBtn = document.getElementById('btnToStep2');
+  prevBtn.disabled = true;
+  prevBtn.textContent = '⏳ Caricamento…';
+
+  selectedChoices.clear();
+
+  if (SCRIPT_URL !== "YOUR_GOOGLE_SCRIPT_URL_HERE") {
+    try {
+      const resp = await fetch(SCRIPT_URL + '?action=read', { mode: 'cors' });
+      const data = await resp.json();
+      if (data[name] && typeof data[name] === 'object' && !Array.isArray(data[name])) {
+        Object.entries(data[name]).forEach(([id, dest]) => selectedChoices.set(id, dest));
+      }
+    } catch(e) { /* nessun dato precedente */ }
+  }
+
+  // Aggiorna UI weekend picker
+  document.querySelectorAll('.we-card').forEach(card => {
+    const id = card.dataset.id;
+    const dest = selectedChoices.get(id);
+    applyDestUI(card, dest || null);
+    // Espandi solo le card con selezione
+    if (dest) card.classList.add('expanded', 'has-selection');
+    else card.classList.remove('expanded', 'has-selection');
+  });
+  updateSelSummary();
+
+  prevBtn.disabled = false;
+  const n = selectedChoices.size;
+  prevBtn.textContent = n > 0 ? `Modifica scelte (${n} già selezionati) →` : 'Continua →';
+}
+
+// ═══════════════════════════════════════════════
+// STEP 2 — WEEKEND PICKER
+// ═══════════════════════════════════════════════
+function buildWeekendPicker() {
+  const container = document.getElementById('weekendPicker');
+  const months = {};
+  WEEKENDS.forEach(we => {
+    if (!months[we.month]) months[we.month] = [];
+    months[we.month].push(we);
+  });
+
+  Object.entries(months).forEach(([month, wes]) => {
+    const group = document.createElement('div');
+    group.className = 'month-group';
+    const label = document.createElement('div');
+    label.className = 'month-label';
+    label.textContent = month;
+    group.appendChild(label);
+
+    const grid = document.createElement('div');
+    grid.className = 'weekends-grid';
+
+    wes.forEach(we => {
+      const card = document.createElement('div');
+      card.className = 'we-card';
+      card.dataset.id = we.id;
+
+      // Header — click per espandere/collassare
+      const header = document.createElement('div');
+      header.className = 'we-header';
+      header.innerHTML = `<div class="we-dates">${we.startFmt} – ${we.endFmt}</div><div class="we-toggle-hint">tocca per scegliere</div>`;
+      header.onclick = () => toggleExpand(card);
+
+      // Pulsanti destinazione
+      const dests = document.createElement('div');
+      dests.className = 'we-dests';
+
+      const btnP = document.createElement('div');
+      btnP.className = 'dest-btn';
+      btnP.dataset.dest = 'piemonte';
+      btnP.textContent = '🏔 Piemonte';
+      btnP.onclick = () => selectDest(card, we.id, 'piemonte');
+
+      const btnT = document.createElement('div');
+      btnT.className = 'dest-btn';
+      btnT.dataset.dest = 'toscana';
+      btnT.textContent = '🌻 Toscana';
+      btnT.onclick = () => selectDest(card, we.id, 'toscana');
+
+      dests.appendChild(btnP);
+      dests.appendChild(btnT);
+      card.appendChild(header);
+      card.appendChild(dests);
+      grid.appendChild(card);
+    });
+
+    group.appendChild(grid);
+    container.appendChild(group);
+  });
+}
+
+function toggleExpand(card) {
+  card.classList.toggle('expanded');
+}
+
+function selectDest(card, id, dest) {
+  // Se clicca la stessa dest già selezionata -> deseleziona
+  if (selectedChoices.get(id) === dest) {
+    selectedChoices.delete(id);
+    applyDestUI(card, null);
+    card.classList.remove('has-selection');
+  } else {
+    selectedChoices.set(id, dest);
+    applyDestUI(card, dest);
+    card.classList.add('has-selection');
+    // Collassa dopo la scelta
+    setTimeout(() => card.classList.remove('expanded'), 300);
+  }
+  updateSelSummary();
+}
+
+function applyDestUI(card, dest) {
+  card.querySelectorAll('.dest-btn').forEach(btn => {
+    btn.classList.remove('selected-piemonte', 'selected-toscana');
+    if (dest && btn.dataset.dest === dest) {
+      btn.classList.add('selected-' + dest);
+    }
+  });
+  // Colore bordo header
+  const header = card.querySelector('.we-header');
+  header.style.background = '';
+  if (dest === 'piemonte') header.style.background = 'var(--sage-light)';
+  if (dest === 'toscana')  header.style.background = 'var(--teal-light)';
+}
+
+function updateSelSummary() {
+  const el = document.getElementById('selSummary');
+  const n = selectedChoices.size;
+  if (n === 0) { el.classList.remove('show'); return; }
+  const p = [...selectedChoices.values()].filter(v => v === 'piemonte').length;
+  const t = [...selectedChoices.values()].filter(v => v === 'toscana').length;
+  let txt = `✓ ${n} weekend selezionat${n===1?'o':'i'}`;
+  if (p) txt += ` · 🏔 Piemonte: ${p}`;
+  if (t) txt += ` · 🌻 Toscana: ${t}`;
+  el.textContent = txt;
+  el.classList.add('show');
+}
+
+// ═══════════════════════════════════════════════
+// STEP 3 — CONFERMA
+// ═══════════════════════════════════════════════
+function goToStep3() {
+  document.getElementById('confirmName').textContent = selectedName;
+  const list = document.getElementById('confirmList');
+  list.innerHTML = '';
+
+  if (selectedChoices.size === 0) {
+    list.innerHTML = '<span class="confirm-empty">Nessun weekend selezionato</span>';
+  } else {
+    // Ordina per id (cronologico)
+    const sorted = [...selectedChoices.entries()].sort((a,b) => a[0].localeCompare(b[0]));
+    sorted.forEach(([id, dest]) => {
+      const we = WEEKENDS.find(w => w.id === id);
+      if (!we) return;
+      const tag = document.createElement('span');
+      tag.className = 'confirm-tag ' + dest;
+      tag.textContent = `${we.startFmt}–${we.endFmt} ${dest === 'piemonte' ? '🏔' : '🌻'}`;
+      list.appendChild(tag);
+    });
+  }
+  hideStatus();
+  setStep(3);
+}
+
+// ═══════════════════════════════════════════════
+// INVIO DATI
+// ═══════════════════════════════════════════════
+async function sendData() {
+  const btn = document.getElementById('btnSend');
+  btn.disabled = true;
+  btn.textContent = '⏳ Invio in corso…';
+  showStatus('loading', 'Invio delle disponibilità in corso…');
+
+  if (SCRIPT_URL === "YOUR_GOOGLE_SCRIPT_URL_HERE") {
+    showStatus('error', 'SCRIPT_URL non configurato. Segui le istruzioni in fondo al file HTML.');
+    btn.disabled = false;
+    btn.textContent = '✉ Invia disponibilità';
+    return;
+  }
+
+  // Payload: { name, choices: { id: 'piemonte'|'toscana', ... } }
+  const payload = {
+    name: selectedName,
+    choices: Object.fromEntries(selectedChoices)
+  };
+
+  try {
+    await postViaIframe(SCRIPT_URL, payload);
+    showStatus('success', `✓ Disponibilità di ${selectedName} salvata con successo!`);
+    btn.textContent = '✓ Inviato';
+    setTimeout(() => { setStep(4); loadSummary(); }, 1400);
+  } catch(err) {
+    showStatus('error', `Errore durante l'invio: ${err.message}`);
+    btn.disabled = false;
+    btn.textContent = '✉ Riprova';
+  }
+}
+
+function postViaIframe(url, data) {
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe');
+    iframe.name = 'sf_' + Date.now();
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    form.target = iframe.name;
+    form.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = JSON.stringify(data);
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    const timer = setTimeout(() => { cleanup(); resolve(); }, 8000);
+    iframe.onload  = () => { clearTimeout(timer); cleanup(); resolve(); };
+    iframe.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error('Errore di rete')); };
+
+    function cleanup() {
+      setTimeout(() => {
+        if (form.parentNode) document.body.removeChild(form);
+        if (iframe.parentNode) document.body.removeChild(iframe);
+      }, 500);
+    }
+    form.submit();
+  });
+}
+
+function showStatus(type, msg) {
+  const box = document.getElementById('statusBox');
+  box.className = 'status-box show status-' + type;
+  box.textContent = msg;
+}
+function hideStatus() { document.getElementById('statusBox').className = 'status-box'; }
+
+// ═══════════════════════════════════════════════
+// STEP 4 — RIEPILOGO GRUPPO
+// ═══════════════════════════════════════════════
+async function loadSummary() {
+  document.getElementById('loadingMsg').style.display = 'block';
+  document.getElementById('summaryGrid').innerHTML = '';
+
+  try {
+    if (SCRIPT_URL === "YOUR_GOOGLE_SCRIPT_URL_HERE") { renderSummary(getMockData()); return; }
+    const resp = await fetch(SCRIPT_URL + '?action=read', { mode: 'cors' });
+    const data = await resp.json();
+    renderSummary(data);
+  } catch(err) {
+    renderSummary(getMockData());
+    document.getElementById('loadingMsg').textContent = '⚠️ Impossibile caricare i dati live. Configura SCRIPT_URL.';
+  }
+}
+
+function getMockData() {
+  const result = {};
+  PEOPLE.forEach(p => { result[p] = {}; });
+  if (selectedName) result[selectedName] = Object.fromEntries(selectedChoices);
+  return result;
+}
+
+function renderSummary(data) {
+  document.getElementById('loadingMsg').style.display = 'none';
+  const container = document.getElementById('summaryGrid');
+
+  const monthOrder = [];
+  const monthMap = {};
+  WEEKENDS.forEach((we, i) => {
+    if (!monthMap[we.month]) { monthMap[we.month] = { name: we.month, indices: [] }; monthOrder.push(we.month); }
+    monthMap[we.month].indices.push(i);
+  });
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+
+  // Riga 1: mesi
+  const mrow = document.createElement('tr');
+  const mNameTh = document.createElement('th');
+  mNameTh.className = 'name-col'; mNameTh.rowSpan = 2; mNameTh.textContent = 'Nome';
+  mrow.appendChild(mNameTh);
+  monthOrder.forEach(month => {
+    const th = document.createElement('th');
+    th.colSpan = monthMap[month].indices.length;
+    th.textContent = month.replace(' 2026','').toUpperCase();
+    th.style.cssText = 'background:var(--gold);color:var(--ink);font-size:0.7rem;letter-spacing:0.06em;border-left:2px solid var(--ink);';
+    mrow.appendChild(th);
+  });
+  thead.appendChild(mrow);
+
+  // Riga 2: date weekend
+  const drow = document.createElement('tr');
+  WEEKENDS.forEach((we, i) => {
+    const th = document.createElement('th');
+    th.innerHTML = `${we.startFmt}<br>${we.endFmt}`;
+    th.style.fontSize = '0.62rem'; th.style.fontWeight = '400';
+    if (monthMap[we.month].indices[0] === i) th.style.borderLeft = '2px solid rgba(201,168,76,0.5)';
+    drow.appendChild(th);
+  });
+  thead.appendChild(drow);
+  table.appendChild(thead);
+
+  // Tbody: persone
+  const tbody = document.createElement('tbody');
+  PEOPLE.forEach(person => {
+    const tr = document.createElement('tr');
+    const nameTd = document.createElement('td');
+    nameTd.className = 'name-cell'; nameTd.textContent = person;
+    tr.appendChild(nameTd);
+
+    const personChoices = data[person] || {};
+    WEEKENDS.forEach((we, i) => {
+      const td = document.createElement('td');
+      const dest = personChoices[we.id];
+      if (dest === 'piemonte') { td.className = 'cell-piemonte'; td.textContent = 'P'; }
+      else if (dest === 'toscana') { td.className = 'cell-toscana'; td.textContent = 'T'; }
+      else { td.className = 'cell-empty'; }
+      if (monthMap[we.month].indices[0] === i) td.style.borderLeft = '2px solid var(--border)';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
+// ═══════════════════════════════════════════════
+// NAVIGAZIONE
+// ═══════════════════════════════════════════════
+function setStep(n) {
+  ['step1','step2','step3','step4'].forEach((id,i) => {
+    document.getElementById(id).style.display = (i+1===n) ? 'block' : 'none';
+  });
+  ['s1','s2','s3','s4'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.className = 'step';
+    if (i+1 < n) el.classList.add('done');
+    else if (i+1 === n) el.classList.add('active');
+  });
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function goToStep1() { setStep(1); }
+function goToStep2() { setStep(2); }
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     📋 ISTRUZIONI PER COLLEGARE GOOGLE SHEETS
+     ══════════════════════════════════════════════════════
+
+1. Vai su https://sheets.google.com e crea un nuovo foglio.
+   Rinominalo "Disponibilità".
+   In riga 1 metti: A1=Timestamp  B1=Nome  C1=Scelte (JSON)
+
+2. Vai su Estensioni → Apps Script, cancella tutto e incolla:
+
+─────────────────────────────────────────────
+const SHEET_NAME = "Disponibilità";
+
+function doPost(e) {
+  try {
+    let data;
+    if (e.parameter && e.parameter.payload) {
+      data = JSON.parse(e.parameter.payload);
+    } else {
+      data = JSON.parse(e.postData.contents);
+    }
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    const rows = sheet.getDataRange().getValues();
+    for (let i = rows.length - 1; i >= 1; i--) {
+      if (rows[i][1] === data.name) sheet.deleteRow(i + 1);
+    }
+    sheet.appendRow([
+      new Date().toISOString(),
+      data.name,
+      JSON.stringify(data.choices || {})
+    ]);
+    return ContentService
+      .createTextOutput(JSON.stringify({status:"ok"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({status:"error",msg:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  if (e.parameter.action !== "read") {
+    return ContentService.createTextOutput("{}").setMimeType(ContentService.MimeType.JSON);
+  }
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const rows = sheet.getDataRange().getValues();
+  const result = {};
+  for (let i = 1; i < rows.length; i++) {
+    const name = rows[i][1];
+    try { result[name] = JSON.parse(rows[i][2] || "{}"); } catch(e) { result[name] = {}; }
+  }
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+─────────────────────────────────────────────
+
+3. Salva → Distribuisci → Nuovo Deployment → App Web
+   Esegui come: Me  |  Accesso: Chiunque
+   Copia l'URL e incollalo in: const SCRIPT_URL = "..."
+
+4. Carica su GitHub Pages o Netlify e condividi il link!
+
+══════════════════════════════════════════════════════ -->
+
+</body>
+</html>
